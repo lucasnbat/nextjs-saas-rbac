@@ -311,4 +311,119 @@
 
 <img title="" src="file:///C:/Users/lucas/AppData/Roaming/marktext/images/2024-09-18-10-59-44-image.png" alt="" data-align="center" width="411">
 
+# Criando pacote de autenticação
+
+* Tudo que é compartilhado entre front e back no contexto de monorepo, se torna um **pacote (package)** ou, se é configuração, uma **config**
+
+* Como eu configuro um pacote da aplicação?
+  
+  * Bom, tem muito do que já vimos.
+
+* Crie a pasta `packages/auth/` e depois, crie os arquivos `package.json` e `index.ts`.
+
+* No `package.json`:
+
+* ```vim
+  {
+      "name": "@saas/auth",
+      "version": "0.0.0",
+      "private": true,
+      "main": "index.ts",
+      "types": "index.ts"
+  }
+  ```
+
+* Estamos nomeando o pacote com "name", definindo-o como privado e apontando que o arquivo a ser carregado na importação desse pacote é o index.ts, além de que qualquer tipagem deve vir do `index.ts` também;
+
+* Insira as dependências em `packages/auth/package.json`:
+
+* ```vim
+      "devDependencies": {
+          "@saas/prettier": "workspace:*",
+          "@saas/eslint-config": "workspace:*",
+          "@saas/typescript-config": "workspace:*"
+      }
+  ```
+
+* Adicione também as depedencias do eslint e prettier:
+
+* ```vim
+  {
+      "name": "@saas/auth",
+      "version": "0.0.0",
+      "private": true,
+      "main": "index.ts",
+      "types": "index.ts",
+      "devDependencies": {
+          "@saas/prettier": "workspace:*",
+          "@saas/eslint-config": "workspace:*",
+          "@saas/typescript-config": "workspace:*"
+      },
+      "eslintConfig": {
+          "extends": [
+              "@saas/eslint/config/library"
+          ]
+      },
+      "prettier": "@saas/prettier"
+  }
+  ```
+
+* O código de configuração de tipagem para bibliotecas presente em `config/typescript-config/library.json` foi tirado de um repositorio `tsconfig/bases` do github, na parte de Vite React;
+
+* ```vim
+  {
+      "$schema": "https://json.schemastore.org/tsconfig",
+      "_version": "3.0.0",
+      "compilerOptions": {
+          "target": "ES2020",
+          "useDefineForClassFields": true,
+          "lib": [
+              "ES2020",
+              "DOM",
+              "DOM.Iterable"
+          ],
+          "module": "ESNext",
+          "skipLibCheck": true,
+          "moduleResolution": "bundler",
+          "allowImportingTsExtensions": true,
+          "resolveJsonModule": true,
+          "isolatedModules": true,
+          "noEmit": true,
+          "jsx": "react-jsx",
+          "strict": true,
+          "noUnusedLocals": true,
+          "noUnusedParameters": true,
+          "noFallthroughCasesInSwitch": true
+      }
+  }
+  ```
+
+* Como funcionam todos esses pacotes então?
+  
+  * Bem, vemos que há um padrão:
+    
+    * `package.json` sempre fica com os meta dados do pacote, devDependencies ou outras bibliotecas anexadas (no caso do eslint, por ex, temos o prettier anexado no package)
+    
+    * `index.*` são arquivos que vão conter as configurações em si para trabalhar com os pacotes;
+
+# CASL - Biblioteca de autenticação
+
+* User Action: descreve o que usuário pode ou não fazer;
+  
+  * Ex: create, read, update, delete;
+
+* Subject: entidades da aplicação (Payslip, User, etc);
+
+* Fields: campos das entidades que quero a associar ermissão condicional;
+
+* Condições: condições como "usuário só pode editar um tweet criado se ninguém deu like ainda";
+
+* No geral, é bom ter as regras de negócio de condições de autenticação dentro da sua aplicação, no backend; então:
+  
+  * Condições gerais: guardadas no CASL;
+  
+  * Condições beirando a linha de regra de negócio: guardadas no Back-end;
+
+* Por padrão, o CASL deixa tudo como acesso negado. Nós seguimos apenas dizendo o que pode fazer;
+
 * 
