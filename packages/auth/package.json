@@ -8,5 +8,11 @@
         "@saas/prettier": "workspace:*",
         "@saas/eslint-config": "workspace:*",
         "@saas/typescript-config": "workspace:*"
-    }
+    },
+    "eslintConfig": {
+        "extends": [
+            "@saas/eslint/config/library"
+        ]
+    },
+    "prettier": "@saas/prettier"
 }
