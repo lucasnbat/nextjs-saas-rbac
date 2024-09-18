@@ -5,8 +5,5 @@
   "license": "MIT",
   "files": [
     "library.json"
-  ],
-  "publishConfig": {
-    "access": "public"
-  }
+  ]
 }
