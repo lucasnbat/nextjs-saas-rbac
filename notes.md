@@ -426,4 +426,50 @@
 
 * Por padrão, o CASL deixa tudo como acesso negado. Nós seguimos apenas dizendo o que pode fazer;
 
-* 
+* Começando: coloque o código de exemplo no `src/index.ts`:
+
+* ```vim
+  import { createMongoAbility, ForcedSubject, CreateAbility, MongoAbility } from '@casl/ability';
+  
+  const actions = ['manage', 'invite'] as const;
+  const subjects = ['User', 'all'] as const;
+  type AppAbilities = [
+    typeof actions[number],
+    typeof subjects[number] | ForcedSubject<Exclude<typeof subjects[number], 'all'>>
+  ];
+  
+  export type AppAbility = MongoAbility<AppAbilities>;
+  export const createAppAbility = createMongoAbility as CreateAbility<AppAbility>;
+  ```
+
+* Instale o @casl/ability
+
+* ```powershell
+  pnpm i @casl/ability
+  ```
+
+* Começamos a configuração em `/apps/api/package.json`:
+
+* ```vim
+  {
+      "name": "@saas/api",
+      "version": "1.0.0",
+      "devDependencies": {
+          "@saas/prettier": "workspace:*",
+          "@saas/eslint-config": "workspace:*",
+          "@saas/typescript-config": "workspace:*"
+      },
+      "prettier": "@saas/prettier",
+      "eslintConfig": {
+          "extends": [
+              "@saas/eslint-config/node"
+          ]
+      }
+  }
+  ```
+
+* Faça o `pnpm install` e siga:
+
+* ```powershell
+  pnpm i @types/node tsx -D
+  ```
