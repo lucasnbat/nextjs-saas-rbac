@@ -275,10 +275,40 @@
 
 * Multi Tenant: o software roda numa infra da nuvem e varias empresas acessam desse lugar;
 
-* Multi Tenant NÃO QUER DIZER multi subdomínios. Você não é refém de identificar o usuário e a empresa dele só por subdomínios (empresa1.app.com, empresa2.app.com).
+* **Multi Tenant NÃO QUER DIZER multi subdomínios**. Você não é refém de identificar o usuário e a empresa dele só por subdomínios (empresa1.app.com, empresa2.app.com).
   
   * Você pode simplemente salvar a empresa do usuário numa tabela com id e associar a ele;
 
 * Ex: Stripe (multi-tenant);
+
+* **Multi tenant NÃO PRECISA DE UM BANCO OU SCHEMA POR EMPRESA**;
+  
+  * Você resolve isso tendo um único schema contendo foreign key indicando de qual empresa é o dado;
+  
+  * Exceções:
+    
+    * Vender para o governo;
+    
+    * Vender com contrato individual especificando que não querem os dados em conjunto com outras empresas;
+
+### Autorização
+
+* RBAC: ROle based Authorization Control: controle baseado em cargos;
+  
+  * Mais geral, alto nível (membro pode alterar projetos, pode listar projetos)
+
+* ABAC: Attribute Based Authorization COntrol: baseado em atributos;
+  
+  * Granular, o membro pode alterar o título do projeto, pode listar projetos apenas com detalhes gerais;
+
+* Usuário deveria poder criar Novas Roles?
+  
+  * 90% das vezes não;
+  
+  * Casos em que precisa é quando há muitos detalhes e preciso de permissionamento muito granular;
+
+* Assumindo que o usuário não cria novas roles, podemos ter a seguinte esquematização:
+
+<img title="" src="file:///C:/Users/lucas/AppData/Roaming/marktext/images/2024-09-18-10-59-44-image.png" alt="" data-align="center" width="411">
 
 * 
