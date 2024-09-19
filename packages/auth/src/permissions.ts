@@ -1,7 +1,6 @@
 import { AbilityBuilder } from "@casl/ability"
 import { AppAbility } from "."
-
-type Role = 'ADMIN' | 'MEMBER'
+import { Role } from "./roles"
 
 // note que aqui eu uso o AbilityBuilder, o mesmo que usei para criar as permissões
 // específicas no src/index.ts. 
@@ -24,7 +23,8 @@ export const permissions: Record<Role, PermissionsByRole> = {
         can('manage', 'all')
     },
     MEMBER(_, { can }) {
-        can('invite', 'User')
+        // can('invite', 'User')
         can('manage', 'Project')
     },
+    BILLING() { }
 }

@@ -1,10 +1,14 @@
 // aqui vão as regras de permissão
 
-import { createMongoAbility, ForcedSubject, CreateAbility, MongoAbility, AbilityBuilder } from '@casl/ability';
+import { createMongoAbility, CreateAbility, MongoAbility, AbilityBuilder } from '@casl/ability';
 import { User } from './models/user';
 import { permissions } from './permissions';
-import { UserSubject } from './subjects/user';
-import { ProjectSubject } from './subjects/project';
+import { userSubject } from './subjects/user';
+import { projectSubject } from './subjects/project';
+import { z } from 'zod';
+import { inviteSubject } from './subjects/invite';
+import { billingSubject } from './subjects/billing';
+import { organizationSubject } from './subjects/organization';
 
 /**
  * AppAbilities combina ações e sujeitos, incluindo a entidade forçada 
@@ -14,7 +18,22 @@ import { ProjectSubject } from './subjects/project';
  * que se refere a todos os subjects, e a opção manage indica 'poder ge-
  * renciar (CRUD) a entidade, no caso, todas as entidades/subjects;
  */
-type AppAbilities = UserSubject | ProjectSubject | ['manage', 'all']
+
+// isso é para tipar os conjuntos sujeito + ações e jogar no type AppAbilities
+const appAbilitiesSchema = z.union([
+    projectSubject,
+    userSubject,
+    inviteSubject,
+    billingSubject,
+    organizationSubject,
+
+    z.tuple([
+        z.literal('manage'),
+        z.literal('all'),
+    ])
+])
+
+type AppAbilities = z.infer<typeof appAbilitiesSchema>
 
 // aparentemente isso é uma tipagem para o createMongoAbility que será guardado
 // no createAppAbility
