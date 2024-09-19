@@ -3,23 +3,18 @@
 import { createMongoAbility, ForcedSubject, CreateAbility, MongoAbility, AbilityBuilder } from '@casl/ability';
 import { User } from './models/user';
 import { permissions } from './permissions';
-
-// duas permissões/ ações, manage é tipo poder fazer tudo
-// manage é algo interno da biblioteca
-const actions = ['manage', 'invite', 'delete'] as const;
-
-// entidades, all é uma tipo dizer que o usuário pode fazer algo em todas as entidades
-// all é algo interno da biblioteca
-const subjects = ['User', 'all'] as const;
+import { UserSubject } from './subjects/user';
+import { ProjectSubject } from './subjects/project';
 
 /**
  * AppAbilities combina ações e sujeitos, incluindo a entidade forçada 
- * ForcedSubject para especificar casos onde 'all' não deve ser considerado.
+ * No caso abaixo, para cada subject eu já tenho o sujeito (Project) com
+ * suas ações possíveis (manage, create and delete);
+ * Se não cair em nenhum dos subjects predefinidos, vai cair no all,
+ * que se refere a todos os subjects, e a opção manage indica 'poder ge-
+ * renciar (CRUD) a entidade, no caso, todas as entidades/subjects;
  */
-type AppAbilities = [
-    typeof actions[number],
-    typeof subjects[number] | ForcedSubject<Exclude<typeof subjects[number], 'all'>>
-];
+type AppAbilities = UserSubject | ProjectSubject | ['manage', 'all']
 
 // aparentemente isso é uma tipagem para o createMongoAbility que será guardado
 // no createAppAbility
@@ -45,13 +40,4 @@ export function defineAbilityFor(user: User) {
     const ability = builder.build()
 
     return ability
-
-    // usuário pode convidar outro usuário
-    // can('invite', 'User'
-
-    // regra para fins didáticos, afinal, por padrão um usuário não pode deletar outro
-    // cannot('delete', 'User')
-
-    // ability guarda as permissões e exporta para usos em outros arquivos
-    // export const ability = build()
 }
