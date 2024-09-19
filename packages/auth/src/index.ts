@@ -3,13 +3,12 @@
 import { createMongoAbility, CreateAbility, MongoAbility, AbilityBuilder } from '@casl/ability';
 import { User } from './models/user';
 import { permissions } from './permissions';
-import { userSubject, UserSubject } from './subjects/user';
-import { projectSubject, ProjectSubject } from './subjects/project';
+import { userSubject } from './subjects/user';
+import { projectSubject } from './subjects/project';
 import { z } from 'zod';
-import { inviteSubject, InviteSubject } from './subjects/invite';
-import { billingSubject, BillingSubject } from './subjects/billing';
-import { organizationSubject, OrganizationSubject } from './subjects/organization';
-import { Project } from './models/project'
+import { inviteSubject } from './subjects/invite';
+import { billingSubject } from './subjects/billing';
+import { organizationSubject } from './subjects/organization';
 
 /**
  * AppAbilities combina ações e sujeitos, incluindo a entidade forçada 
