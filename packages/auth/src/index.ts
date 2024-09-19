@@ -3,12 +3,13 @@
 import { createMongoAbility, CreateAbility, MongoAbility, AbilityBuilder } from '@casl/ability';
 import { User } from './models/user';
 import { permissions } from './permissions';
-import { userSubject } from './subjects/user';
-import { projectSubject } from './subjects/project';
+import { userSubject, UserSubject } from './subjects/user';
+import { projectSubject, ProjectSubject } from './subjects/project';
 import { z } from 'zod';
-import { inviteSubject } from './subjects/invite';
-import { billingSubject } from './subjects/billing';
-import { organizationSubject } from './subjects/organization';
+import { inviteSubject, InviteSubject } from './subjects/invite';
+import { billingSubject, BillingSubject } from './subjects/billing';
+import { organizationSubject, OrganizationSubject } from './subjects/organization';
+import { Project } from './models/project'
 
 /**
  * AppAbilities combina ações e sujeitos, incluindo a entidade forçada 
@@ -56,7 +57,11 @@ export function defineAbilityFor(user: User) {
     permissions[user.role](user, builder)
 
     // usa o método para montar as permissões e disponibilizar can(), cannnt()...
-    const ability = builder.build()
+    const ability = builder.build({
+        detectSubjectType(subject) {
+            return subject.__typename
+        }
+    })
 
     return ability
 }
