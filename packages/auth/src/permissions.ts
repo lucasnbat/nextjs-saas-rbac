@@ -19,12 +19,19 @@ export const permissions: Record<Role, PermissionsByRole> = {
      *  can('manage', 'all')
      * },
      */
-    ADMIN(_, { can }) {
+    ADMIN(user, { can, cannot }) {
+        // pode gerenciar tudo...
         can('manage', 'all')
+
+        // mas não pode manipular organização que não é dele
+        // logo, primeiro negamos todo poder de transfer...
+        // e depois dizemos qual é o único caso onde pode transferir
+        // usar cannot ( neq: user.id )(não transfere o que não é do id dele )
+        // não funcionaria,, pois uma vez que ele pode tudo (linha 24) não 
+        // dá para usar cannots seletivos...
+        cannot('transfer_ownership', 'Organization')
+        can('transfer_ownership', 'Organization', { ownerId: { $eq: user.id } })
     },
-    MEMBER(user, { can }) {
-        can(['create', 'get'], 'Project')
-        can(['update', 'delete'], 'Project', { ownerId: { $eq: user.id } })
-    },
-    BILLING() { }
+    MEMBER(user, { can }) { },
+    BILLING(user, { can }) { }
 }
