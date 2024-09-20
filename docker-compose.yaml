@@ -4,7 +4,7 @@ services:
   pg:
     image: bitnami/postgresql:latest
     ports: 
-      - 5432:9876 # acesso usando 9876 aqui na máquina
+      - 9876:5432 # acesso usando 9876 aqui na máquina
     environment:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker
