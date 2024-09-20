@@ -19,6 +19,11 @@ import { organizationSubject } from './subjects/organization';
  * renciar (CRUD) a entidade, no caso, todas as entidades/subjects;
  */
 
+// exportando models
+export * from './models/organization'
+export * from './models/user'
+export * from './models/project'
+
 // isso é para tipar os conjuntos sujeito + ações e jogar no type AppAbilities
 const appAbilitiesSchema = z.union([
     projectSubject,

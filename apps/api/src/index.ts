@@ -1,11 +1,11 @@
-import { defineAbilityFor } from '@saas/auth'
+import { defineAbilityFor, projectSchema } from '@saas/auth'
 
-const ability = defineAbilityFor({ role: 'MEMBER' })
+const ability = defineAbilityFor({ role: 'MEMBER', id: 'user-id' })
 
-const userCanInviteSomeoneElse = ability.can('invite', 'User')
-const userCanDeleteOtherUsers = ability.can('delete', 'User')
-const userCannotDeleteOtherUsers = ability.cannot('delete', 'User')
+const project = projectSchema.parse({ id: 'project-id', ownerId: 'user-id' })
 
-console.log('Pode convidar:', userCanInviteSomeoneElse)
-console.log('Pode deletar usuário?:', userCanDeleteOtherUsers)
-console.log('Não pode deletar usuário:', userCannotDeleteOtherUsers)
+/* O usuário pode deletar algum projeto? */
+console.log(ability.can('delete', 'Project')) // sim, algum projeto ele pode, desde que seja dele
+
+/* Vamos checar isso... */
+console.log(ability.can('delete', project)) // true...se você trocar o ownerId do projeto -> false

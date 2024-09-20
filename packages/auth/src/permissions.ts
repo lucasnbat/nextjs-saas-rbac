@@ -28,10 +28,18 @@ export const permissions: Record<Role, PermissionsByRole> = {
         // e depois dizemos qual é o único caso onde pode transferir
         // usar cannot ( neq: user.id )(não transfere o que não é do id dele )
         // não funcionaria,, pois uma vez que ele pode tudo (linha 24) não 
-        // dá para usar cannots seletivos...
-        cannot('transfer_ownership', 'Organization')
-        can('transfer_ownership', 'Organization', { ownerId: { $eq: user.id } })
+        // dá para usar cannots seletivos... não dá para passasr parâmetro 
+        // para cannot
+        cannot(['transfer_ownership', 'update'], 'Organization')
+        can(['transfer_ownership', 'update'], 'Organization', { ownerId: { $eq: user.id } })
+
     },
-    MEMBER(user, { can }) { },
-    BILLING(user, { can }) { }
+    MEMBER(user, { can }) {
+        can('get', 'User')
+        can(['create', 'get'], 'Project')
+        can(['update', 'delete'], 'Project', { ownerId: { $eq: user.id } })
+    },
+    BILLING(_, { can }) {
+        can('manage', 'Billing')
+    }
 }
