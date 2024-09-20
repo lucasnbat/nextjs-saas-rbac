@@ -558,8 +558,6 @@ Roles & permissions.
 - Only administrators and project authors may update/delete the project;
 - Members can leave their own organization;
 
-
-
 # Iniciando: setup com fastify
 
 * Módulos instalados:
@@ -572,6 +570,11 @@ Roles & permissions.
 
 * ```powershell
   Invoke-WebRequest -Uri "http://localhost:3333/users" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"name": "sample", "email": "sample@sample.com", "password": "123123"}'
-  
-  
+  ```
+
+* Como iniar config. do prisma:
+
+* ```powershell
+  pnpm install prisma -D
+  pnpm prisma init
   ```
