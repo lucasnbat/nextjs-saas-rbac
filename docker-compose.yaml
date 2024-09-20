@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  pg:
+    image: bitnami/postgresql:latest
+    ports: 
+      - 5432:9876 # acesso usando 9876 aqui na máquina
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTRGRES_DB=next-saas
