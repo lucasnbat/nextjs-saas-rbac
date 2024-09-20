@@ -578,3 +578,48 @@ Roles & permissions.
   pnpm install prisma -D
   pnpm prisma init
   ```
+
+* Como configurar o @/ como caminho absoluto para imports:
+
+* ```powershell
+  {
+      "extends": "@saas/typescript-config/node.json",
+      "include": [
+          "src/**/*"
+      ],
+      "compilerOptions": {
+          "baseUrl": ".",
+          "paths": {
+              "@/*": [
+                  "./src/*"
+              ]
+          }
+      }
+  }
+  ```
+
+
+
+# Anotações durante construção
+
+* Como criar um seed?
+
+* Instale o faker:
+
+* ```powershell
+  pnpm i @faker-js/faker -D
+  ```
+
+* Após criar o `seed.ts`, crie uma seção chamada "prisma" e coloque o script:
+
+* ```powershell
+      "prisma":{
+          "seed":"tsx prisma/seed.ts"
+      },
+  ```
+
+* Script para ativar e popular o banco:
+
+* ```powershell
+  pnpm dlx prisma db seed
+  ```
