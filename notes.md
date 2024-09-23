@@ -653,3 +653,15 @@ app.register(fastifySwaggerUI, {
 })
 ```
 * Assim, ao acessar o /docs, você irá para a documentação
+
+# Fastify JWT
+
+```vim
+pnpm i @fastify/jwt
+```
+
+```vim
+app.register(fastifyJwt, {
+  secret: 'sua-secret-aqui',
+})
+```
