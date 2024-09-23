@@ -5,6 +5,8 @@ import { z } from 'zod'
 
 import { prisma } from '@/lib/prisma'
 
+import { BadRequestError } from '../_errors/bad-request-error'
+
 const createUserBodySchema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -33,9 +35,7 @@ export async function createAccount(app: FastifyInstance) {
       })
 
       if (userWithSameEmail) {
-        return reply
-          .status(400)
-          .send({ message: 'user with same email already exists' })
+        throw new BadRequestError('user with same email already exists')
       }
 
       // captura o dominio (lucas@coacen.com -> coacen.com)
