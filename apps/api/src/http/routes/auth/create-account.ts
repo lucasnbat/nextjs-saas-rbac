@@ -18,6 +18,8 @@ export async function createAccount(app: FastifyInstance) {
     '/users',
     {
       schema: {
+        tags: ['auth'], // agregador de rotas pra swagger
+        summary: 'Creat a new account | /docs', // descrição para swagger
         body: createUserBodySchema,
       },
     },

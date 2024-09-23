@@ -538,13 +538,13 @@ Roles & permissions.
 | Invite a member        | ✅             | ❌      | ❌       | ❌         |
 | Revoke an invite       | ✅             | ❌      | ❌       | ❌         |
 | List members           | ✅             | ✅      | ✅       | ❌         |
-| Transfer ownership     | ⚠️            | ❌      | ❌       | ❌         |
+| Transfer ownership     | ⚠️             | ❌      | ❌       | ❌         |
 | Update member role     | ✅             | ❌      | ❌       | ❌         |
-| Delete member          | ✅             | ⚠️     | ❌       | ❌         |
+| Delete member          | ✅             | ⚠️      | ❌       | ❌         |
 | List projects          | ✅             | ✅      | ✅       | ❌         |
 | Create a new project   | ✅             | ✅      | ❌       | ❌         |
-| Update a project       | ✅             | ⚠️     | ❌       | ❌         |
-| Delete a project       | ✅             | ⚠️     | ❌       | ❌         |
+| Update a project       | ✅             | ⚠️      | ❌       | ❌         |
+| Delete a project       | ✅             | ⚠️      | ❌       | ❌         |
 | Get billing details    | ✅             | ❌      | ✅       | ❌         |
 | Export billing details | ✅             | ❌      | ✅       | ❌         |
 
@@ -623,3 +623,33 @@ Roles & permissions.
 * ```powershell
   pnpm dlx prisma db seed
   ```
+# Setup Swagger
+
+* Instale com: 
+```powershell
+pnpm i @fastify/swagger
+```
+
+* Adicione esse plugin no seu `server.ts`: 
+```vim
+app.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: 'Next.js SaaS',
+      description: 'Full-stack SaaS app with multi-tenant & RBAC',
+      version: '1.0.0',
+    },
+    servers: [],
+  },
+  transform: jsonSchemaTransform,
+})
+```
+* Lembre de descomentar o `jsonSchemaTransform`
+* Para visualizar: `pnpm i @fastify/swagger-ui` 
+* Adicione o plugin no `server.ts`:
+```vim
+app.register(fastifySwaggerUI, {
+  routePrefix: '/docs',
+})
+```
+* Assim, ao acessar o /docs, você irá para a documentação
