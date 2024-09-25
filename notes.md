@@ -665,3 +665,83 @@ app.register(fastifyJwt, {
   secret: 'sua-secret-aqui',
 })
 ```
+## Extendendo classes no fastify
+
+* Crie um arquivo `/api/@types/fastify.d.ts`:
+```vim
+import 'fastify'
+
+declare module 'fastify' {
+  export interface FastifyRequest {
+    getCurrentUserId(): Promise<string>
+  }
+}
+
+```
+* Lembre de conferir se no `tsconfig.json` você tem o @types como fonte de tipos:
+```vim
+{
+    "extends": "@saas/typescript-config/node.json",
+    "include": [
+        "src/**/*",
+        "@types"
+    ],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        }
+    }
+}
+```
+* Tudo isso é feito para ser possível usar essa função `getCurrentUserId` asspcia-
+  da à request:
+```vim
+export async function auth(app: FastifyInstance) {
+  app.addHook('preHandler', async (request) => {
+    request.getCurrentUserId = async () => {
+      try {
+        const { sub } = await request.jwtVerify<{ sub: string }>()
+
+        return sub
+      } catch (error) {
+        throw new UnauthorizedError('Invalid auth token')
+      }
+    }
+  })
+}
+```
+* Mesmo assim, você precisa instalar o fastify-plugin para disponibilizar esse
+  hook para toda a aplicação;
+
+```powershell
+pnpm install fastify-plugin
+```
+* Agora reescreva o middleware como arrow function e pegue o conteudo para inserir
+  dentro da função `fastifyplugin`:
+
+```vim
+
+import type { FastifyInstance } from 'fastify'
+import { fastifyPlugin } from 'fastify-plugin'
+
+import { UnauthorizedError } from '../routes/_errors/unauthorized-error'
+
+export const auth = fastifyPlugin(async (app: FastifyInstance) => {
+  app.addHook('preHandler', async (request) => {
+    request.getCurrentUserId = async () => {
+      try {
+        const { sub } = await request.jwtVerify<{ sub: string }>()
+
+        return sub
+      } catch (error) {
+        throw new UnauthorizedError('Invalid auth token')
+      }
+    }
+  })
+})
+```
+* você sempre precisará usar o `fastifyPlugin` para expor o seu hook/plugin
+  para a aplicação inteira;  
