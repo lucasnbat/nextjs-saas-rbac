@@ -1,3 +1,5 @@
+// essa função busca pegar os throw Errors, formatar e retornar a mensagem limpa
+
 import { FastifyInstance } from 'fastify'
 import { ZodError } from 'zod'
 

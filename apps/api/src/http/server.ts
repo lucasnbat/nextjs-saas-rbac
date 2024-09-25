@@ -10,6 +10,7 @@ import {
   ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 
+import { errorHandler } from './error-handler'
 import { authenticateWithPassword } from './routes/auth/authenticate-with-password'
 import { createAccount } from './routes/auth/create-account'
 import { getProfile } from './routes/auth/get-profile'
@@ -21,6 +22,9 @@ app.setSerializerCompiler(serializerCompiler)
 
 /* Validação com validador vindo da lib do zod */
 app.setValidatorCompiler(validatorCompiler)
+
+/* instancia o error handler */
+app.setErrorHandler(errorHandler)
 
 /* para criar setup swagger integrada com fastify e zod em JSON */
 app.register(fastifySwagger, {
