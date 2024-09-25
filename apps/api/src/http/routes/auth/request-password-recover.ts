@@ -18,18 +18,11 @@ export async function requestPasswordRecover(app: FastifyInstance) {
     {
       schema: {
         tags: ['auth'],
-        summary: 'Get authenticated user profile',
+        summary: 'Request a password recovering feature',
         body: RequestPasswordRecoverBodySchema,
-        // response: {
-        //   200: z.object({
-        //     user: z.object({
-        //       id: z.string().uuid(),
-        //       name: z.string().nullable(),
-        //       email: z.string().email(),
-        //       avatarUrl: z.string().url().nullable(),
-        //     }),
-        //   }),
-        // },
+        response: {
+          201: z.null(),
+        },
       },
     },
     async (request, reply) => {
@@ -46,14 +39,20 @@ export async function requestPasswordRecover(app: FastifyInstance) {
         return reply.status(201).send()
       }
 
-      await prisma.token.create({
+      // aqui está renomeando o id para 'code'
+      const { id: code } = await prisma.token.create({
         data: {
           type: 'PASSWORD_RECOVER',
           userId: userFromEmail.id,
         },
       })
 
-      // enviar link de recover para email
+      // enviar link de recover para email (abaixo, simulação apenas para fins
+      // de desenvolvimento didático)
+
+      console.log('Recover password token:', code)
+
+      return reply.status(201).send()
     },
   )
 }
