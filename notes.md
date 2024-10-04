@@ -745,3 +745,11 @@ export const auth = fastifyPlugin(async (app: FastifyInstance) => {
 ```
 * você sempre precisará usar o `fastifyPlugin` para expor o seu hook/plugin
   para a aplicação inteira;  
+
+## Autenticação Github
+
+### Fluxo manual:
+
+* Cria uma url: `https://github.com/login/oauth/authorize?client_id=seu_client_id&redirect_uri=http://localhost:3000/sua/url/aqui&scope=user:email` 
+* Isso vai gerar um código que será exposto na URL de resultado da página de frontend para o qual você vai ser redirecionado;
+* Com esse código `code` você faz a requisição POST do arquivo `authenticate-with-github.ts` e consegue um access_token
