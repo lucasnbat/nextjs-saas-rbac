@@ -665,7 +665,7 @@ app.register(fastifyJwt, {
   secret: 'sua-secret-aqui',
 })
 ```
-## Extendendo classes no fastify
+# Extendendo classes no fastify
 
 * Crie um arquivo `/api/@types/fastify.d.ts`:
 ```vim
@@ -746,10 +746,37 @@ export const auth = fastifyPlugin(async (app: FastifyInstance) => {
 * você sempre precisará usar o `fastifyPlugin` para expor o seu hook/plugin
   para a aplicação inteira;  
 
-## Autenticação Github
+# Autenticação Github
 
-### Fluxo manual:
+## Fluxo manual:
 
 * Cria uma url: `https://github.com/login/oauth/authorize?client_id=seu_client_id&redirect_uri=http://localhost:3000/sua/url/aqui&scope=user:email` 
 * Isso vai gerar um código que será exposto na URL de resultado da página de frontend para o qual você vai ser redirecionado;
 * Com esse código `code` você faz a requisição POST do arquivo `authenticate-with-github.ts` e consegue um access_token
+
+# Var. ambiente
+
+* Instale:
+  ```powershell
+  pnpm i @t3-oss/env-nextjs
+  ```
+* Isso permite separar vars ambiente do front e do back;
+* Instale a tipagem do node para trabalhar com `process.env`:
+  ```powershell
+  pnpm install @types/node
+  ```
+* Para que você consiga fazer o projeto `apps/api` reconhecer o env:
+  ```powershell
+  pnpm install dotenv-cli -D
+  ```
+* Crie script para carregar as var ambiente e depois use elejunto do 
+  dev ou de qualquer outro script que execute ferramenta que dependa 
+  de var ambiente:
+  ```vim
+    "scripts": {
+        "dev": "pnpm env:load tsx watch src/http/server.ts",
+        "env:load":"dotenv -e ../../.env --",
+        "db:migrate":"pnpm env:load prisma migrate dev",
+        "db:studio":"pnpm env:load prisma studio"
+    },
+  ```
