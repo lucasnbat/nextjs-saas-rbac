@@ -26,7 +26,7 @@ export const permissions: Record<Role, PermissionsByRole> = {
         // mas não pode manipular organização que não é dele
         // logo, primeiro negamos todo poder de transfer...
         // e depois dizemos qual é o único caso onde pode transferir
-        // usar cannot ( neq: user.id )(não transfere o que não é do id dele )
+        // usar cannot ( $eq: user.id )(não transfere o que não é do id dele )
         // não funcionaria,, pois uma vez que ele pode tudo (linha 24) não 
         // dá para usar cannots seletivos... não dá para passasr parâmetro 
         // para cannot
