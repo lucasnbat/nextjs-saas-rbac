@@ -23,14 +23,29 @@ export async function getOrganization(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
           body: getOrganizationSchema,
           response: {
-            // 201: z.object({
-            //   organizationId: z.string().uuid(),
-            // }),
+            201: z.object({
+              organization: z.object({
+                id: z.string().uuid(),
+                name: z.string(),
+                slug: z.string(),
+                domain: z.string().nullable(),
+                shouldAttachUsersByDomain: z.boolean(),
+                avatarUrl: z.string().url(),
+                createdAt: z.date(),
+                updatedAt: z.date(),
+                ownerId: z.string().uuid(),
+              }),
+            }),
           },
         },
       },
-      async (request, reply) => {
+      async (request) => {
         const { slug } = request.params as GetOrganizationType
+        const { organization } = await request.getUserMembership(slug)
+
+        return {
+          organization,
+        }
       },
     )
 }
