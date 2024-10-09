@@ -14,14 +14,13 @@ export async function getOrganization(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
-    .post(
+    .get(
       '/organizations/:slug',
       {
         schema: {
           tags: ['organizations'],
           summary: 'Get details from organization',
           security: [{ bearerAuth: [] }],
-          body: getOrganizationSchema,
           response: {
             201: z.object({
               organization: z.object({
