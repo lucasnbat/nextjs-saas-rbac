@@ -58,6 +58,8 @@ export function defineAbilityFor(user: User) {
     }
 
     // ativa a permissão passando o usuário recebido + o builder que cria permissões
+    // aqui está lendo, para uma role x (ex: MEMBER) quais são as permissões
+    // veja que esta mapeando o arquivo permissions.ts como um vetor 
     permissions[user.role](user, builder)
 
     // usa o método para montar as permissões e disponibilizar can(), cannnt()...
