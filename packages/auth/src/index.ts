@@ -67,5 +67,8 @@ export function defineAbilityFor(user: User) {
         }
     })
 
+    ability.can = ability.can.bind(ability) // para sempre o this apontar para ability
+    ability.cannot = ability.cannot.bind(ability) // para sempre o this apontar para ability
+
     return ability
 }

@@ -7,51 +7,39 @@ import { auth } from '@/http/middlewares/auth'
 import { getUserPermissions } from '@/http/utils/get-user-permissions'
 import { prisma } from '@/lib/prisma'
 
-import { BadRequestError } from '../_errors/bad-request-error'
 import { UnauthorizedError } from '../_errors/unauthorized-error'
 
-const updateOrganizationSchema = z.object({
-  name: z.string(),
-  domain: z.string().nullish(), // pode vir null ou undefined
-  shouldAttachUsersByDomain: z.boolean().optional(),
-})
-
-const updateOrganizationParamsSchema = z.object({
+const shutdownOrganizationParamsSchema = z.object({
   slug: z.string(),
 })
 
-type UpdateOrganizationType = z.infer<typeof updateOrganizationSchema>
-type UpdateOrganizationParamsType = z.infer<
-  typeof updateOrganizationParamsSchema
+type ShutdownOrganizationParamsType = z.infer<
+  typeof shutdownOrganizationParamsSchema
 >
 
-export async function updateOrganization(app: FastifyInstance) {
+export async function shutdownOrganization(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
-    .put(
+    .delete(
       '/organizations/:slug',
       {
         schema: {
           tags: ['organizations'],
-          summary: 'Update organization',
+          summary: 'Shutdown organization',
           security: [{ bearerAuth: [] }],
-          body: updateOrganizationSchema,
-          params: updateOrganizationParamsSchema,
+          params: shutdownOrganizationParamsSchema,
           response: {
             204: z.null(),
           },
         },
       },
       async (request, reply) => {
-        const { slug } = request.params as UpdateOrganizationParamsType
+        const { slug } = request.params as ShutdownOrganizationParamsType
 
         const userId = await request.getCurrentUserId()
         const { membership, organization } =
           await request.getUserMembership(slug)
-
-        const { name, domain, shouldAttachUsersByDomain } =
-          request.body as UpdateOrganizationType
 
         // vou criar uma empresa seguindo o molde que tá no auth/models!
         const authOrganization = organizationSchema.parse({
@@ -70,37 +58,15 @@ export async function updateOrganization(app: FastifyInstance) {
          * que o usuário não pode alterar nenhuma org, o que é mentira, pois ele pode
          * alterar as organizações onde ele é dono
          */
-        if (cannot('update', authOrganization)) {
+        if (cannot('delete', authOrganization)) {
           throw new UnauthorizedError(
-            'You are not allowed to update this organization',
+            'You are not allowed to shutdown this organization',
           )
         }
 
-        if (domain) {
-          const organizationByDomain = await prisma.organization.findFirst({
-            where: {
-              domain, // organização com domínio
-              id: {
-                not: organization.id, // mas que não seja a organização que o usuário que está atualizando faz parte
-              },
-            },
-          })
-
-          if (organizationByDomain) {
-            throw new BadRequestError(
-              'Another organization with same domain already exists',
-            )
-          }
-        }
-
-        await prisma.organization.update({
+        await prisma.organization.delete({
           where: {
             id: organization.id,
-          },
-          data: {
-            name,
-            domain,
-            shouldAttachUsersByDomain,
           },
         })
 
