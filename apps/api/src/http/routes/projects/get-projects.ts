@@ -8,57 +8,63 @@ import { prisma } from '@/lib/prisma'
 
 import { BadRequestError } from '../_errors/bad-request-error'
 
-const getProjectSchemaParams = z.object({
-  orgSlug: z.string(),
-  projectSlug: z.string(),
+const getProjectsSchemaParams = z.object({
+  slug: z.string(),
 })
 
-type GetProjectParamsType = z.infer<typeof getProjectSchemaParams>
+type GetProjectsParamsType = z.infer<typeof getProjectsSchemaParams>
 
-export async function getProject(app: FastifyInstance) {
+export async function getProjects(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .get(
-      '/organizations/:orgSlug/projects/:projectSlug',
+      '/organizations/:slug/projects/',
       {
         schema: {
           tags: ['projects'],
-          summary: 'List an project',
+          summary: 'List all organization projects',
           security: [{ bearerAuth: [] }],
-          params: getProjectSchemaParams,
+          params: getProjectsSchemaParams,
           response: {
             200: z.object({
-              id: z.string().uuid(),
-              name: z.string(),
-              description: z.string(),
-              slug: z.string(),
-              ownerId: z.string().uuid(),
-              avatarUrl: z.string().nullable(),
-              organizationId: z.string().uuid(),
-              owner: z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                avatarUrl: z.string().nullable(),
-              }),
+              projects: z.array(
+                z.object({
+                  id: z.string().uuid(),
+                  name: z.string(),
+                  description: z.string(),
+                  slug: z.string(),
+                  ownerId: z.string().uuid(),
+                  avatarUrl: z.string().nullable(),
+                  organizationId: z.string().uuid(),
+                  createdAt: z.date(),
+                  owner: z.object({
+                    id: z.string(),
+                    name: z.string().nullable(),
+                    avatarUrl: z.string().nullable(),
+                  }),
+                }),
+              ),
             }),
           },
         },
       },
       async (request, reply) => {
-        const { orgSlug, projectSlug } = request.params as GetProjectParamsType
+        const { slug } = request.params as GetProjectsParamsType
         const { membership, organization } =
-          await request.getUserMembership(orgSlug)
+          await request.getUserMembership(slug)
 
         const userId = await request.getCurrentUserId()
 
         const { cannot } = getUserPermissions(userId, membership.role)
 
         if (cannot('get', 'Project')) {
-          throw new BadRequestError('You are not allowed to see this project')
+          throw new BadRequestError(
+            'You are not allowed to see organization projects',
+          )
         }
 
-        const project = await prisma.project.findUnique({
+        const projects = await prisma.project.findMany({
           select: {
             id: true,
             name: true,
@@ -67,6 +73,7 @@ export async function getProject(app: FastifyInstance) {
             ownerId: true,
             avatarUrl: true,
             organizationId: true,
+            createdAt: true,
             owner: {
               select: {
                 id: true,
@@ -76,17 +83,15 @@ export async function getProject(app: FastifyInstance) {
             },
           },
           where: {
-            slug: projectSlug,
             organizationId: organization.id,
+          },
+          orderBy: {
+            createdAt: 'desc',
           },
         })
 
-        if (!project) {
-          throw new BadRequestError('Project not found')
-        }
-
         return reply.status(201).send({
-          project,
+          projects,
         })
       },
     )
