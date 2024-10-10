@@ -7,30 +7,30 @@ import { prisma } from '@/lib/prisma'
 
 import { BadRequestError } from '../_errors/bad-request-error'
 
-const acceptInviteSchemaParams = z.object({
+const rejectInviteSchemaParams = z.object({
   inviteId: z.string().uuid(),
 })
 
-type AcceptInviteTypeParams = z.infer<typeof acceptInviteSchemaParams>
+type RejectInviteTypeParams = z.infer<typeof rejectInviteSchemaParams>
 
-export async function acceptInvite(app: FastifyInstance) {
+export async function rejectInvite(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .post(
-      '/invites/:inviteId/accept',
+      '/invites/:inviteId/reject',
       {
         schema: {
           tags: ['invites'],
-          summary: 'Accept an invite',
-          params: acceptInviteSchemaParams,
+          summary: 'Reject an invite',
+          params: rejectInviteSchemaParams,
           response: {
             204: z.null(),
           },
         },
       },
       async (request, reply) => {
-        const { inviteId } = request.params as AcceptInviteTypeParams
+        const { inviteId } = request.params as RejectInviteTypeParams
         const userId = await request.getCurrentUserId()
 
         const invite = await prisma.invite.findUnique({
@@ -57,20 +57,11 @@ export async function acceptInvite(app: FastifyInstance) {
           throw new BadRequestError('Invite belongs to another user')
         }
 
-        await prisma.$transaction([
-          prisma.member.create({
-            data: {
-              userId,
-              organizationId: invite.organizationId,
-              role: invite.role,
-            },
-          }),
-          prisma.invite.delete({
-            where: {
-              id: inviteId,
-            },
-          }),
-        ])
+        await prisma.invite.delete({
+          where: {
+            id: inviteId,
+          },
+        })
 
         return reply.status(204).send()
       },
