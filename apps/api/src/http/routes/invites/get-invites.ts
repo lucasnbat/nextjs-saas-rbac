@@ -15,7 +15,7 @@ const getInvitesSchemaParams = z.object({
 
 type GetInvitesParamsType = z.infer<typeof getInvitesSchemaParams>
 
-export async function getInvitess(app: FastifyInstance) {
+export async function getInvites(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
