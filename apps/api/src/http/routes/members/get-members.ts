@@ -1,3 +1,4 @@
+import { roleSchema } from '@saas/auth/src/roles'
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
@@ -8,41 +9,34 @@ import { prisma } from '@/lib/prisma'
 
 import { BadRequestError } from '../_errors/bad-request-error'
 
-const getProjectsSchemaParams = z.object({
+const getMembersSchemaParams = z.object({
   slug: z.string(),
 })
 
-type GetProjectsParamsType = z.infer<typeof getProjectsSchemaParams>
+type GetMembersParamsType = z.infer<typeof getMembersSchemaParams>
 
-export async function getProjects(app: FastifyInstance) {
+export async function getMembers(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .get(
-      '/organizations/:slug/projects/',
+      '/organizations/:slug/members/',
       {
         schema: {
-          tags: ['projects'],
-          summary: 'List all organization projects',
+          tags: ['members'],
+          summary: 'List all organization members',
           security: [{ bearerAuth: [] }],
-          params: getProjectsSchemaParams,
+          params: getMembersSchemaParams,
           response: {
             200: z.object({
-              projects: z.array(
+              members: z.array(
                 z.object({
                   id: z.string().uuid(),
-                  name: z.string(),
-                  description: z.string(),
-                  slug: z.string(),
-                  ownerId: z.string().uuid(),
+                  userId: z.string().uuid(),
+                  role: roleSchema,
+                  name: z.string().nullable(),
                   avatarUrl: z.string().url().nullable(),
-                  organizationId: z.string().uuid(),
-                  createdAt: z.date(),
-                  owner: z.object({
-                    id: z.string(),
-                    name: z.string().nullable(),
-                    avatarUrl: z.string().url().nullable(),
-                  }),
+                  email: z.string().email(),
                 }),
               ),
             }),
@@ -50,7 +44,7 @@ export async function getProjects(app: FastifyInstance) {
         },
       },
       async (request, reply) => {
-        const { slug } = request.params as GetProjectsParamsType
+        const { slug } = request.params as GetMembersParamsType
         const { membership, organization } =
           await request.getUserMembership(slug)
 
@@ -58,26 +52,21 @@ export async function getProjects(app: FastifyInstance) {
 
         const { cannot } = getUserPermissions(userId, membership.role)
 
-        if (cannot('get', 'Project')) {
+        if (cannot('get', 'User')) {
           throw new BadRequestError(
-            'You are not allowed to see organization projects',
+            'You are not allowed to see organization members',
           )
         }
 
-        const projects = await prisma.project.findMany({
+        const members = await prisma.member.findMany({
           select: {
             id: true,
-            name: true,
-            description: true,
-            slug: true,
-            ownerId: true,
-            avatarUrl: true,
-            organizationId: true,
-            createdAt: true,
-            owner: {
+            role: true,
+            user: {
               select: {
                 id: true,
                 name: true,
+                email: true,
                 avatarUrl: true,
               },
             },
@@ -86,13 +75,23 @@ export async function getProjects(app: FastifyInstance) {
             organizationId: organization.id,
           },
           orderBy: {
-            createdAt: 'desc',
+            role: 'asc',
           },
         })
 
-        return reply.status(201).send({
-          projects,
-        })
+        // pega cada membro, extrai os dados de user separadamente e deixa o resto em ...member
+        // veja que ele tambem desestruttura o user para renomear id -> userId e joga o resto em ...user
+        const memberWithRoles = members.map(
+          ({ user: { id: userId, ...user }, ...member }) => {
+            return {
+              ...user,
+              ...member,
+              userId,
+            }
+          },
+        )
+
+        return reply.status(200).send({ members: memberWithRoles })
       },
     )
 }
